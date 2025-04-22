@@ -1,3 +1,5 @@
+// components\login-modal.tsx
+
 "use client"
 
 import type React from "react"
@@ -68,6 +70,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
 
       if (authData.user) {
         // Create a profile for the user
+        console.log("handleSignUp: User created, attempting profile insert...");
         const { error: profileError } = await supabase.from("profiles").insert([
           {
             id: authData.user.id,
@@ -75,11 +78,18 @@ export function LoginModal({ onClose }: LoginModalProps) {
             current_streak: 0,
             highest_streak: 0,
           },
-        ])
+        ]);
+        console.log("handleSignUp: Profile Insert Response", profileError);
 
-        if (profileError) throw profileError
+        if (profileError) {
+          console.error("handleSignUp: Profile insertion failed!", profileError); // Add this log
+          // Maybe we should throw here too? Or handle differently?
+          throw profileError;
+      } else {
+          console.log("handleSignUp: Profile insertion successful (or skipped if no authData.user)."); // Add this log
       }
-
+    }
+    console.log("handleSignUp: Attempting to show toast and close modal...");
       toast({
         title: "Account created!",
         description: "Your account has been successfully created.",
